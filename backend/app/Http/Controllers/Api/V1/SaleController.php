@@ -24,34 +24,30 @@ class SaleController extends Controller
 
         if ($s = trim((string) $request->query('search',''))) {
             $q->where(function($w) use ($s) {
-                $w->whereHas('client', fn($qq)=>$qq->where('nombre','like',"%$s%"))
-                  ->orWhereHas('seller', fn($qq)=>$qq->where('nombre','like',"%$s%"));
+                $w->whereHas('client', fn($qq) => $qq->where('nombre','like',"%$s%"))
+                  ->orWhereHas('seller', fn($qq) => $qq->where('nombre','like',"%$s%"));
             });
         }
 
-        if ($start = $request->query('start_date')) {
-            $q->where('fecha','>=',$start);
-        }
-        if ($end = $request->query('end_date')) {
-            $q->where('fecha','<=',$end);
-        }
-        if ($year = $request->query('year')) {
-            $q->whereYear('fecha', (int) $year);
-        }
+        if ($start = $request->query('start_date')) $q->where('fecha','>=',$start);
+        if ($end   = $request->query('end_date'))   $q->where('fecha','<=',$end);
+        if ($year  = $request->query('year'))       $q->whereYear('fecha', (int) $year);
 
         $q->orderBy($col,$dir);
 
-        return SaleResource::collection($q->paginate($this->perPage())->appends($request->query()));
+        return SaleResource::collection(
+            $q->paginate($this->perPage())->appends($request->query())
+        );
     }
 
     public function store(SaleStoreRequest $request)
     {
-        return DB::transaction(function() use ($request) {
+        return DB::transaction(function () use ($request) {
             $data = $request->validated();
-            $det  = collect($data['detalles']);
 
-            $monto = $det->reduce(
-                fn($c,$d)=> $c + ((float)$d['precio_unitario'] * (int)$d['cantidad']), 0.0
+            $monto = collect($data['detalles'])->reduce(
+                fn ($c,$d) => $c + ((float)$d['precio_unitario'] * (int)$d['cantidad']),
+                0.0
             );
 
             $sale = Sale::create([
@@ -64,7 +60,7 @@ class SaleController extends Controller
                 'estado'      => $request->string('estado')->toString() ?: 'pagada',
             ]);
 
-            foreach ($det as $d) {
+            foreach ($data['detalles'] as $d) {
                 SaleDetail::create([
                     'sale_id'         => $sale->id,
                     'product_id'      => $d['product_id'],
@@ -73,17 +69,33 @@ class SaleController extends Controller
                     'subtotal'        => (float)$d['precio_unitario'] * (int)$d['cantidad'],
                 ]);
 
-                // Descontar stock
-                Product::where('id',$d['product_id'])->decrement('stock', (int)$d['cantidad']);
+                Product::where('id', $d['product_id'])->decrement('stock', (int)$d['cantidad']);
             }
 
-            return new SaleResource($sale->load(['client','seller','zone','details']));
+            // 👇 Eager load para que no salga cliente/vendedor/zona en null
+            $sale->load([
+                'client:id,nombre',
+                'seller:id,nombre',
+                'zone:id,nombre_zona',
+                'details:id,sale_id,product_id,cantidad,precio_unitario,subtotal',
+            ]);
+
+            return (new SaleResource($sale))
+                ->response()
+                ->setStatusCode(201);
         });
     }
 
     public function show(Sale $sale)
     {
-        return new SaleResource($sale->load(['client','seller','zone','details']));
+        $sale->load([
+            'client:id,nombre',
+            'seller:id,nombre',
+            'zone:id,nombre_zona',
+            'details:id,sale_id,product_id,cantidad,precio_unitario,subtotal',
+        ]);
+
+        return new SaleResource($sale);
     }
 
     public function destroy(Sale $sale)

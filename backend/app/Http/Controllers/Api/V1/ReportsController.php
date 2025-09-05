@@ -33,7 +33,7 @@ class ReportsController extends Controller
         return response()->json($q->paginate($this->perPage()));
     }
 
-    // 2) Zonas sin ventas en un intervalo: usar NOT EXISTS para exactitud
+    // 2) Zonas sin ventas en un intervalo
     public function zonasSinVentas(Request $r)
     {
         $start = $r->query('start_date');
@@ -71,12 +71,12 @@ class ReportsController extends Controller
         return response()->json($q->paginate($this->perPage()));
     }
 
-    // 4) Ventas por cliente (2020-2023) + filtro ?year=YYYY opcional
+    // 4) Ventas por cliente (2020–2023) + ?year=YYYY opcional
     public function ventasPorCliente(Request $r)
     {
         $year = $r->query('year');
-
         $years = [2020,2021,2022,2023];
+
         $selects = [
             'c.id as id_cliente',
             'c.nombre as nombre_cliente',
@@ -90,7 +90,7 @@ class ReportsController extends Controller
             ->leftJoin('sales as s','s.client_id','=','c.id')
             ->leftJoin('zones as z','z.id','=','s.zone_id')
             ->select($selects)
-            ->when($year, fn($qq)=>$qq->whereYear('s.fecha', (int)$year))
+            ->when($year, fn($qq)=>$qq->whereYear('s.fecha',(int)$year))
             ->groupBy('c.id','c.nombre')
             ->orderBy('c.id');
 

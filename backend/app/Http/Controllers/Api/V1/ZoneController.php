@@ -18,17 +18,20 @@ class ZoneController extends Controller
         $q = Zone::query();
 
         if ($s = trim((string) $request->query('search',''))) {
-            $q->where('nombre_zona','like',"%$s%");
+            $q->where('nombre_zona', 'like', "%$s%");
         }
 
-        $q->orderBy($col,$dir);
-        return ZoneResource::collection($q->paginate($this->perPage())->appends($request->query()));
+        $q->orderBy($col, $dir);
+
+        return ZoneResource::collection(
+            $q->paginate($this->perPage())->appends($request->query())
+        );
     }
 
     public function store(ZoneRequest $request)
     {
         $zone = Zone::create($request->validated());
-        return new ZoneResource($zone);
+        return (new ZoneResource($zone))->response()->setStatusCode(201);
     }
 
     public function show(Zone $zone)

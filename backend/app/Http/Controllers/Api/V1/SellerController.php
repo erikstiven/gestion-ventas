@@ -18,20 +18,23 @@ class SellerController extends Controller
         $q = Seller::query();
 
         if ($s = trim((string) $request->query('search',''))) {
-            $q->where(function($w) use ($s){
-                $w->where('nombre','like',"%$s%")
-                  ->orWhere('email','like',"%$s%");
+            $q->where(function ($w) use ($s) {
+                $w->where('nombre', 'like', "%$s%")
+                  ->orWhere('email', 'like', "%$s%");
             });
         }
 
-        $q->orderBy($col,$dir);
-        return SellerResource::collection($q->paginate($this->perPage())->appends($request->query()));
+        $q->orderBy($col, $dir);
+
+        return SellerResource::collection(
+            $q->paginate($this->perPage())->appends($request->query())
+        );
     }
 
     public function store(SellerRequest $request)
     {
         $seller = Seller::create($request->validated());
-        return new SellerResource($seller);
+        return (new SellerResource($seller))->response()->setStatusCode(201);
     }
 
     public function show(Seller $seller)

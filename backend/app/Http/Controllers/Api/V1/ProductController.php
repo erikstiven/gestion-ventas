@@ -18,20 +18,25 @@ class ProductController extends Controller
         $q = Product::query();
 
         if ($s = trim((string) $request->query('search',''))) {
-            $q->where(function($w) use ($s){
-                $w->where('nombre','like',"%$s%")
-                  ->orWhere('categoria','like',"%$s%");
+            $q->where(function ($w) use ($s) {
+                $w->where('nombre', 'like', "%$s%")
+                  ->orWhere('categoria', 'like', "%$s%");
             });
         }
 
-        $q->orderBy($col,$dir);
-        return ProductResource::collection($q->paginate($this->perPage())->appends($request->query()));
+        $q->orderBy($col, $dir);
+
+        return ProductResource::collection(
+            $q->paginate($this->perPage())->appends($request->query())
+        );
     }
 
     public function store(ProductRequest $request)
     {
         $product = Product::create($request->validated());
-        return new ProductResource($product);
+        return (new ProductResource($product))
+            ->response()
+            ->setStatusCode(201);
     }
 
     public function show(Product $product)
