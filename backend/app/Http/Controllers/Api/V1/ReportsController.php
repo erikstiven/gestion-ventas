@@ -17,17 +17,19 @@ class ReportsController extends Controller
         $end   = $r->query('end_date');
 
         $q = DB::table('sales as s')
-            ->join('zones as z','z.id','=','s.zone_id')
-            ->join('sellers as v','v.id','=','s.seller_id')
+            ->join('zones as z', 'z.id', '=', 's.zone_id')
+            ->join('sellers as v', 'v.id', '=', 's.seller_id')
             ->select(
-                'z.id as zone_id','z.nombre_zona',
-                'v.id as seller_id','v.nombre as vendedor',
+                'z.id as zone_id',
+                'z.nombre_zona',
+                'v.id as seller_id',
+                'v.nombre as vendedor',
                 DB::raw('COUNT(s.id) as total_ventas'),
                 DB::raw('SUM(s.monto_total) as total_monto')
             )
-            ->when($start, fn($qq)=>$qq->where('s.fecha','>=',$start))
-            ->when($end,   fn($qq)=>$qq->where('s.fecha','<=',$end))
-            ->groupBy('z.id','z.nombre_zona','v.id','v.nombre')
+            ->when($start, fn($qq) => $qq->where('s.fecha', '>=', $start))
+            ->when($end,   fn($qq) => $qq->where('s.fecha', '<=', $end))
+            ->groupBy('z.id', 'z.nombre_zona', 'v.id', 'v.nombre')
             ->orderByDesc('total_ventas');
 
         return response()->json($q->paginate($this->perPage()));
@@ -40,17 +42,33 @@ class ReportsController extends Controller
         $end   = $r->query('end_date');
 
         $q = DB::table('zones as z')
-            ->select('z.id','z.nombre_zona')
-            ->whereNotExists(function($sub) use ($start,$end){
+            ->select('z.id', 'z.nombre_zona')
+            ->whereNotExists(function ($sub) use ($start, $end) {
                 $sub->from('sales as s')
-                    ->whereColumn('s.zone_id','z.id')
-                    ->when($start, fn($qq)=>$qq->where('s.fecha','>=',$start))
-                    ->when($end,   fn($qq)=>$qq->where('s.fecha','<=',$end));
+                    ->whereColumn('s.zone_id', 'z.id')
+                    ->when($start, fn($qq) => $qq->where('s.fecha', '>=', $start))
+                    ->when($end, fn($qq) => $qq->where('s.fecha', '<=', $end));
             })
             ->orderBy('z.nombre_zona');
 
-        return response()->json($q->paginate($this->perPage()));
+        // Usamos la paginación
+        $zonas = $q->paginate($this->perPage());
+
+        // Modificar la respuesta para incluir `meta`
+        return response()->json([
+            'data' => $zonas->items(),
+            'links' => [
+                'prev' => $zonas->previousPageUrl(),
+                'next' => $zonas->nextPageUrl(),
+            ],
+            'meta' => [
+                'current_page' => $zonas->currentPage(),
+                'total_pages' => $zonas->lastPage(),
+                'total_items' => $zonas->total(),
+            ]
+        ]);
     }
+
 
     // 3) Vendedores sin ventas en un intervalo
     public function vendedoresSinVentas(Request $r)
@@ -59,12 +77,12 @@ class ReportsController extends Controller
         $end   = $r->query('end_date');
 
         $q = DB::table('sellers as v')
-            ->select('v.id','v.nombre','v.email')
-            ->whereNotExists(function($sub) use ($start,$end){
+            ->select('v.id', 'v.nombre', 'v.email')
+            ->whereNotExists(function ($sub) use ($start, $end) {
                 $sub->from('sales as s')
-                    ->whereColumn('s.seller_id','v.id')
-                    ->when($start, fn($qq)=>$qq->where('s.fecha','>=',$start))
-                    ->when($end,   fn($qq)=>$qq->where('s.fecha','<=',$end));
+                    ->whereColumn('s.seller_id', 'v.id')
+                    ->when($start, fn($qq) => $qq->where('s.fecha', '>=', $start))
+                    ->when($end,   fn($qq) => $qq->where('s.fecha', '<=', $end));
             })
             ->orderBy('v.nombre');
 
@@ -75,7 +93,7 @@ class ReportsController extends Controller
     public function ventasPorCliente(Request $r)
     {
         $year = $r->query('year');
-        $years = [2020,2021,2022,2023];
+        $years = [2020, 2021, 2022, 2023];
 
         $selects = [
             'c.id as id_cliente',
@@ -87,16 +105,16 @@ class ReportsController extends Controller
         }
 
         $q = DB::table('clients as c')
-            ->leftJoin('sales as s','s.client_id','=','c.id')
-            ->leftJoin('zones as z','z.id','=','s.zone_id')
+            ->leftJoin('sales as s', 's.client_id', '=', 'c.id')
+            ->leftJoin('zones as z', 'z.id', '=', 's.zone_id')
             ->select($selects)
-            ->when($year, fn($qq)=>$qq->whereYear('s.fecha',(int)$year))
-            ->groupBy('c.id','c.nombre')
+            ->when($year, fn($qq) => $qq->whereYear('s.fecha', (int)$year))
+            ->groupBy('c.id', 'c.nombre')
             ->orderBy('c.id');
 
         $res = $q->paginate($this->perPage());
 
-        $mapped = collect($res->items())->map(function($row){
+        $mapped = collect($res->items())->map(function ($row) {
             return [
                 'id_cliente'     => (int)$row->id_cliente,
                 'nombre_cliente' => $row->nombre_cliente,

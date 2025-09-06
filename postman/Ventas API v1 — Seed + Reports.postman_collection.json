@@ -1,0 +1,629 @@
+{
+	"info": {
+		"_postman_id": "4c1fb944-18b6-479c-ba50-1f5d37221ba9",
+		"name": "Ventas API v1 — Seed + Reports",
+		"description": "Semillas mínimas y reportes para validar la API.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32011081",
+		"_collection_link": "https://codecima.postman.co/workspace/sorteos-proyectoecuador~13bf59b6-5bc2-479b-b955-7dc6c15261b6/collection/32011081-4c1fb944-18b6-479c-ba50-1f5d37221ba9?action=share&source=collection_link&creator=32011081"
+	},
+	"item": [
+		{
+			"name": "Seed",
+			"item": [
+				{
+					"name": "Zona: Centro",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('201/200', ()=>pm.expect([200,201]).to.include(pm.response.code));",
+									"const j=pm.response.json(); const o=j.data||j; pm.collectionVariables.set('zone_id_centro', o.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"nombre_zona\":\"Centro\",\"descripcion\":\"Zona Centro\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/zones",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"zones"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Zona: Norte",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const j=pm.response.json(); const o=j.data||j; pm.collectionVariables.set('zone_id_norte', o.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"nombre_zona\":\"Norte\",\"descripcion\":\"Zona Norte\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/zones",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"zones"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Zona: Sur (sin ventas)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"nombre_zona\":\"Sur\",\"descripcion\":\"Zona Sur (sin ventas)\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/zones",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"zones"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Vendedor: Ana",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const j=pm.response.json(); const o=j.data||j; pm.collectionVariables.set('seller_id_ana', o.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"nombre\":\"Vendedora Ana\",\"email\":\"ana@example.com\",\"telefono\":\"099111222\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sellers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sellers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Vendedor: Bruno (sin ventas 2023)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const j=pm.response.json(); const o=j.data||j; pm.collectionVariables.set('seller_id_bruno', o.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"nombre\":\"Bruno Díaz\",\"email\":\"bruno@example.com\",\"telefono\":\"099333444\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sellers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sellers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cliente: Juan Pérez",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const j=pm.response.json(); const o=j.data||j; pm.collectionVariables.set('client_id_juan', o.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"nombre\":\"Juan Pérez\",\"email\":\"juan.perez@example.com\",\"telefono\":\"098000111\",\"direccion\":\"Av. 1\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/clients",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"clients"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cliente: Carla Rojas",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const j=pm.response.json(); const o=j.data||j; pm.collectionVariables.set('client_id_carla', o.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"nombre\":\"Carla Rojas\",\"email\":\"carla.rojas@example.com\",\"telefono\":\"098000222\",\"direccion\":\"Av. 2\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/clients",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"clients"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Producto: Camiseta (25.5)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const j=pm.response.json(); const o=j.data||j; pm.collectionVariables.set('product_id_camiseta', o.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"nombre\":\"Camiseta\",\"descripcion\":\"Secado rápido\",\"precio\":25.5,\"stock\":100,\"categoria\":\"Ropa\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Producto: Pantalón (40)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const j=pm.response.json(); const o=j.data||j; pm.collectionVariables.set('product_id_pantalon', o.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"nombre\":\"Pantalón\",\"descripcion\":\"Slim\",\"precio\":40,\"stock\":100,\"categoria\":\"Ropa\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Producto: Gorra (8)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const j=pm.response.json(); const o=j.data||j; pm.collectionVariables.set('product_id_gorra', o.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"nombre\":\"Gorra\",\"descripcion\":\"Algodón\",\"precio\":8,\"stock\":100,\"categoria\":\"Accesorios\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Venta A (2023, Juan + Ana, Zona Centro)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"client_id\": {{client_id_juan}},\n  \"seller_id\": {{seller_id_ana}},\n  \"zone_id\": {{zone_id_centro}},\n  \"fecha\": \"2023-08-15 10:00:00\",\n  \"metodo_pago\": \"efectivo\",\n  \"detalles\": [\n    {\"product_id\": {{product_id_camiseta}}, \"cantidad\": 2, \"precio_unitario\": 25.5},\n    {\"product_id\": {{product_id_gorra}}, \"cantidad\": 1, \"precio_unitario\": 8}\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sales",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sales"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Venta B (2021, Juan + Ana, Zona Centro)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"client_id\": {{client_id_juan}},\n  \"seller_id\": {{seller_id_ana}},\n  \"zone_id\": {{zone_id_centro}},\n  \"fecha\": \"2021-06-10 12:00:00\",\n  \"detalles\": [\n    {\"product_id\": {{product_id_pantalon}}, \"cantidad\": 1, \"precio_unitario\": 40}\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sales",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sales"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Venta C (2023, Carla + Ana, Zona Norte)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"client_id\": {{client_id_carla}},\n  \"seller_id\": {{seller_id_ana}},\n  \"zone_id\": {{zone_id_norte}},\n  \"fecha\": \"2023-12-05 15:20:00\",\n  \"detalles\": [\n    {\"product_id\": {{product_id_camiseta}}, \"cantidad\": 1, \"precio_unitario\": 25.5},\n    {\"product_id\": {{product_id_pantalon}}, \"cantidad\": 1, \"precio_unitario\": 40}\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sales",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sales"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reports",
+			"item": [
+				{
+					"name": "1) Zonas con mayor cantidad de ventas, agrupadas por vendedor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/reports/ventas-por-zona-por-vendedor?start_date=2023-01-01&end_date=2023-12-31",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reports",
+								"ventas-por-zona-por-vendedor"
+							],
+							"query": [
+								{
+									"key": "start_date",
+									"value": "2023-01-01"
+								},
+								{
+									"key": "end_date",
+									"value": "2023-12-31"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2) Zonas sin ventas en un intervalo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/reports/zonas-sin-ventas?start_date=2023-01-01&end_date=2023-12-31",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reports",
+								"zonas-sin-ventas"
+							],
+							"query": [
+								{
+									"key": "start_date",
+									"value": "2023-01-01"
+								},
+								{
+									"key": "end_date",
+									"value": "2023-12-31"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3) Vendedores sin ventas en un intervalo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/reports/vendedores-sin-ventas?start_date=2023-01-01&end_date=2023-12-31",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reports",
+								"vendedores-sin-ventas"
+							],
+							"query": [
+								{
+									"key": "start_date",
+									"value": "2023-01-01"
+								},
+								{
+									"key": "end_date",
+									"value": "2023-12-31"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4) Ventas por cliente (columnas: id, nombre, zona, 2020, 2021, 2022, 2023)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/reports/ventas-por-cliente",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reports",
+								"ventas-por-cliente"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4) Ventas por cliente (columnas: id, nombre, zona, 2020, 2021, 2022, 2023)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/reports/ventas-por-cliente?year=2023",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reports",
+								"ventas-por-cliente"
+							],
+							"query": [
+								{
+									"key": "year",
+									"value": "2023"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "zone_id_centro",
+			"value": ""
+		},
+		{
+			"key": "zone_id_norte",
+			"value": ""
+		},
+		{
+			"key": "seller_id_ana",
+			"value": ""
+		},
+		{
+			"key": "seller_id_bruno",
+			"value": ""
+		},
+		{
+			"key": "client_id_juan",
+			"value": ""
+		},
+		{
+			"key": "client_id_carla",
+			"value": ""
+		},
+		{
+			"key": "product_id_camiseta",
+			"value": ""
+		},
+		{
+			"key": "product_id_pantalon",
+			"value": ""
+		},
+		{
+			"key": "product_id_gorra",
+			"value": ""
+		}
+	]
+}

@@ -1,0 +1,680 @@
+{
+	"info": {
+		"_postman_id": "0ba68309-d9f0-4b69-b4db-684eafdc9d49",
+		"name": "Ventas API v1 — CRUD ALL",
+		"description": "CRUD de Clients, Zones, Sellers, Products, Sales.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32011081",
+		"_collection_link": "https://codecima.postman.co/workspace/sorteos-proyectoecuador~13bf59b6-5bc2-479b-b955-7dc6c15261b6/collection/32011081-0ba68309-d9f0-4b69-b4db-684eafdc9d49?action=share&source=collection_link&creator=32011081"
+	},
+	"item": [
+		{
+			"name": "Clients",
+			"item": [
+				{
+					"name": "index",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/clients?per_page=5&search=&sort=nombre",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"clients"
+							],
+							"query": [
+								{
+									"key": "per_page",
+									"value": "5"
+								},
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "sort",
+									"value": "nombre"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "store",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('201/200', ()=>pm.expect([200,201]).to.include(pm.response.code));",
+									"const j=pm.response.json(); const o=j.data||j; pm.collectionVariables.set('client_id', o.id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"nombre\":\"Juan Tester\",\"email\":\"juan.tester@example.com\",\"telefono\":\"099000111\",\"direccion\":\"Av. Test 123\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/clients",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"clients"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "show",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/clients/{{client_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"clients",
+								"{{client_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"nombre\":\"Juan Actualizado\",\"email\":\"juan.actualizado@example.com\",\"telefono\":\"099123456\",\"direccion\":\"Av. Nueva 999\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/clients/{{client_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"clients",
+								"{{client_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "destroy",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/clients/{{client_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"clients",
+								"{{client_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Zones",
+			"item": [
+				{
+					"name": "index",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/zones?per_page=5&search=&sort=nombre_zona",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"zones"
+							],
+							"query": [
+								{
+									"key": "per_page",
+									"value": "5"
+								},
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "sort",
+									"value": "nombre_zona"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "store",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('201/200', ()=>pm.expect([200,201]).to.include(pm.response.code));",
+									"const j=pm.response.json(); const o=j.data||j; pm.collectionVariables.set('zone_id', o.id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"nombre_zona\":\"Centro\",\"descripcion\":\"Zona Centro\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/zones",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"zones"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "show",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/zones/{{zone_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"zones",
+								"{{zone_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"nombre_zona\":\"Centro Actualizado\",\"descripcion\":\"Zona Centro Edit\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/zones/{{zone_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"zones",
+								"{{zone_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "destroy",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/zones/{{zone_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"zones",
+								"{{zone_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sellers",
+			"item": [
+				{
+					"name": "index",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sellers?per_page=5&search=&sort=nombre",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sellers"
+							],
+							"query": [
+								{
+									"key": "per_page",
+									"value": "5"
+								},
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "sort",
+									"value": "nombre"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "store",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('201/200', ()=>pm.expect([200,201]).to.include(pm.response.code));",
+									"const j=pm.response.json(); const o=j.data||j; pm.collectionVariables.set('seller_id', o.id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"nombre\":\"Vendedora Ana\",\"email\":\"ana@example.com\",\"telefono\":\"099111222\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sellers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sellers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "show",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sellers/{{seller_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sellers",
+								"{{seller_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"nombre\":\"Ana Edit\",\"email\":\"ana.edit@example.com\",\"telefono\":\"099222333\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sellers/{{seller_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sellers",
+								"{{seller_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "destroy",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sellers/{{seller_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sellers",
+								"{{seller_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "index",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/products?per_page=5&search=&sort=nombre",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products"
+							],
+							"query": [
+								{
+									"key": "per_page",
+									"value": "5"
+								},
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "sort",
+									"value": "nombre"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "store",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('201/200', ()=>pm.expect([200,201]).to.include(pm.response.code));",
+									"const j=pm.response.json(); const o=j.data||j; pm.collectionVariables.set('product_id', o.id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"nombre\":\"Camiseta\",\"descripcion\":\"Secado rápido\",\"precio\":25.5,\"stock\":100,\"categoria\":\"Ropa\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "show",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/products/{{product_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products",
+								"{{product_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"nombre\":\"Camiseta PRO\",\"descripcion\":\"Secado rápido v2\",\"precio\":29.9,\"stock\":90,\"categoria\":\"Ropa\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/products/{{product_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products",
+								"{{product_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "destroy",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/products/{{product_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products",
+								"{{product_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sales",
+			"item": [
+				{
+					"name": "index",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sales?per_page=5&start_date=2023-01-01&end_date=2023-12-31",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sales"
+							],
+							"query": [
+								{
+									"key": "per_page",
+									"value": "5"
+								},
+								{
+									"key": "start_date",
+									"value": "2023-01-01"
+								},
+								{
+									"key": "end_date",
+									"value": "2023-12-31"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "store",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('201/200', ()=>pm.expect([200,201]).to.include(pm.response.code));",
+									"const j=pm.response.json(); const o=j.data||j; pm.collectionVariables.set('sale_id', o.id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"client_id\": {{client_id}},\n  \"seller_id\": {{seller_id}},\n  \"zone_id\": {{zone_id}},\n  \"fecha\": \"2023-08-15 10:00:00\",\n  \"metodo_pago\": \"efectivo\",\n  \"detalles\": [\n    {\"product_id\": {{product_id}}, \"cantidad\": 2, \"precio_unitario\": 25.5}\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sales",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sales"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "show",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sales/{{sale_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sales",
+								"{{sale_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "destroy",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sales/{{sale_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sales",
+								"{{sale_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000/api/v1"
+		},
+		{
+			"key": "client_id",
+			"value": ""
+		}
+	]
+}
