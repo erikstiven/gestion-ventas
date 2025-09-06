@@ -1,11 +1,12 @@
 # Gestión de Ventas (Laravel 12 + React 19)
 
-Proyecto full‑stack para gestionar **clientes, zonas, vendedores, productos y ventas**. Incluye reportes y colecciones Postman.
+Proyecto full‑stack para gestionar **clientes, zonas, vendedores, productos y ventas**.  
+Incluye reportes y colecciones Postman.
 
 ## Tech
 - Backend: Laravel 12, MySQL, Eloquent, Pest/PHPUnit
 - Frontend: React 19, Axios, Zustand, Tailwind, React Router
-- QA: Postman/Newman
+- QA: Postman
 
 ## Estructura
 ```
@@ -20,50 +21,53 @@ gestion-ventas/
 ```
 
 ## Requisitos
-PHP 8.2+, Composer, Node 18+, MySQL 8+, Postman (opcional Newman).
+- PHP 8.2+
+- Composer
+- Node 18+
+- MySQL 8+
+- Postman
 
 ## Backend (Laravel)
 ```bash
 cd backend
 cp .env.example .env
-# Ajusta DB_* en .env
+# Ajusta DB_* en .env según tu MySQL
 composer install
 php artisan key:generate
+php artisan migrate --seed
+php artisan serve
 
-# Migraciones
-php artisan migrate
-# o reset + seed de ejemplo
-# php artisan migrate:fresh --seed
 
-# Servidor local
-php artisan serve  # http://127.0.0.1:8000
+## Frontend (React + Vite)
+cd frontend
+npm install
+npm run dev
+
 ```
 
-### Base URL
-`http://127.0.0.1:8000/api/v1`
+## Scripts comunes
+- **Backend tests**: `php artisan test` o `./vendor/bin/pest`
+- **Frontend lint**: `npm run lint`
+- **Build frontend**: `npm run build`
 
-### Filtros comunes
-- `page`, `per_page`
-- `search`
-- `sort`
-- Ventas: `start_date`, `end_date`
-- Reporte por cliente: `year`
+## QA (Postman)
+Antes de probar la API, asegúrate de tener la base de datos vacía y migrada:
+```bash
+cd backend
+php artisan migrate
+```
 
-### Reportes
-1) `/reports/ventas-por-zona-por-vendedor?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD`  
-2) `/reports/zonas-sin-ventas?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD`  
-3) `/reports/vendedores-sin-ventas?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD`  
-4) `/reports/ventas-por-cliente` (opcional `?year=2020`)
-
-
-## Postman
-Importa:
-- `postman/ventas-api-v1.seed-reports.postman_collection.json`
-- `postman/ventas-api-v1.crud-all.postman_collection.json`
-- `postman/ventas-local.postman_environment.json` (define `base_url`)
-
-### Runner
-- Ejecuta carpeta **Seed** y luego **Reports**.
-- CRUD en **CRUD ALL** (Clients/Zones/Sellers/Products/Sales).
-
-
+Para probar la API se incluyen colecciones y un environment en la carpeta`postman`.
+1. Abre la aplicación Postman.
+2. Importa los archivos:
+   - `postman/Ventas API v1 — CRUD ALL.postman_collection.json`
+   - `postman/Ventas API v1 — Seed + Reports.postman_collection.json`
+   - `postman/ventas-local.postman_environment.json`
+3. Selecciona el environment **ventas-local**.
+4. Abre la colección que quieras probar y presiona el botón **Run** (arriba a la derecha en Postman).
+5. Se ejecutarán automáticamente todas las requests definidas en esa colección.
+las requests directamente desde Postman.
+```
+---
+Proyecto técnico de prueba: Gestión de Ventas (Laravel + React) = 100% Cumplido
+👨‍💻 Autor: Pir Erik Quisnia

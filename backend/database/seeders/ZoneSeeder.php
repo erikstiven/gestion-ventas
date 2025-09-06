@@ -2,23 +2,26 @@
 
 namespace Database\Seeders;
 
-use App\Models\Zone;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class ZoneSeeder extends Seeder
 {
     public function run(): void
     {
-        $zonas = [
-            ['nombre_zona' => 'Zona Norte',  'descripcion' => 'Cobertura norte de la ciudad'],
-            ['nombre_zona' => 'Zona Sur',    'descripcion' => 'Cobertura sur de la ciudad'],
-            ['nombre_zona' => 'Zona Centro', 'descripcion' => 'Centro histórico y financiero'],
-            ['nombre_zona' => 'Zona Este',   'descripcion' => null],
-            ['nombre_zona' => 'Zona Oeste',  'descripcion' => null],
-        ];
-        foreach ($zonas as $z) { Zone::firstOrCreate(['nombre_zona' => $z['nombre_zona']], $z); }
+        DB::table('zones')->truncate();
 
-        // Opcional: más zonas aleatorias
-        Zone::factory()->count(5)->create();
+        $zones = [
+            ['nombre_zona' => 'Zona Norte', 'descripcion' => 'Cobertura norte'],
+            ['nombre_zona' => 'Zona Sur', 'descripcion' => 'Cobertura sur'],
+            ['nombre_zona' => 'Zona Centro', 'descripcion' => 'Cobertura centro'],
+            ['nombre_zona' => 'Zona Este', 'descripcion' => 'Cobertura este'],
+            ['nombre_zona' => 'Zona Oeste', 'descripcion' => 'Cobertura oeste'],
+            ['nombre_zona' => 'Zona Amazonía', 'descripcion' => 'Sin ventas para pruebas'],
+            ['nombre_zona' => 'Zona Sierra Alta', 'descripcion' => 'Sin ventas para pruebas'],
+            ['nombre_zona' => 'Zona Costa Lejana', 'descripcion' => 'Sin ventas para pruebas'],
+        ];
+
+        DB::table('zones')->insert($zones);
     }
 }

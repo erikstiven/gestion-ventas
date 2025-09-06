@@ -2,87 +2,77 @@
 
 namespace Database\Seeders;
 
-use App\Models\{Client, Seller, Zone, Product, Sale, SaleDetail};
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;  // Asegúrate de importar Log
+use Carbon\Carbon;
 
 class SaleSeeder extends Seeder
 {
     public function run(): void
     {
-        $clients  = Client::pluck('id')->all();
-        $sellers  = Seller::pluck('id')->all();
-        $zones    = Zone::pluck('id')->all();
-        $products = Product::select('id', 'precio', 'stock')->get();
+        // Evita problemas de FK al truncar
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('sale_details')->truncate();
+        DB::table('sales')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        if (empty($clients) || empty($sellers) || empty($zones) || $products->isEmpty()) {
-            return;
-        }
+        // Catálogos
+        $zones    = DB::table('zones')->pluck('id', 'nombre_zona');   // nombre => id
+        $sellers  = DB::table('sellers')->pluck('id', 'nombre');      // nombre => id
+        $clients  = DB::table('clients')->pluck('id')->toArray();
+        $products = DB::table('products')->get();
 
-        // Ventas distribuidas entre 2020 y 2023 (como exige el reporte)
-        $years = [2020, 2021, 2022, 2023];
-        $totalSales = 300; // ajusta volumen si deseas
+        // Zonas y vendedores que SÍ tendrán ventas (otros quedarán sin ventas)
+        $activeZones = collect(['Zona Norte', 'Zona Sur', 'Zona Centro', 'Zona Este'])
+            ->map(fn ($n) => $zones[$n] ?? null)->filter()->values()->all();
+
+        $activeSellers = collect(['Juan Pérez', 'Carla Rojas', 'Luis Andrade', 'María Torres', 'Pedro Cedeño'])
+            ->map(fn ($n) => $sellers[$n] ?? null)->filter()->values()->all();
+
+        $totalSales = 220;
 
         for ($i = 0; $i < $totalSales; $i++) {
-            DB::transaction(function () use ($clients, $sellers, $zones, $products, $years) {
-                $clientId = $clients[array_rand($clients)];
-                $sellerId = $sellers[array_rand($sellers)];
-                $zoneId   = $zones[array_rand($zones)];
+            // Fecha entre 2020 y 2025
+            $year  = rand(2020, 2025);
+            $month = rand(1, 12);
+            $day   = rand(1, 28);
+            $date  = Carbon::create($year, $month, $day)->toDateString();
 
-                $year  = $years[array_rand($years)];
-                $month = rand(1, 12);
-                $day   = rand(1, 28);
-                $hour  = rand(8, 20);
-                $min   = rand(0, 59);
-                $fecha = sprintf('%04d-%02d-%02d %02d:%02d:00', $year, $month, $day, $hour, $min);
+            $clientId  = $clients[array_rand($clients)];
+            $zoneId    = $activeZones[array_rand($activeZones)];
+            $sellerId  = $activeSellers[array_rand($activeSellers)];
 
-                $sale = Sale::create([
-                    'client_id'   => $clientId,
-                    'seller_id'   => $sellerId,
-                    'zone_id'     => $zoneId,
-                    'fecha'       => $fecha,
-                    'monto_total' => 0, // se recalcula abajo
-                    'metodo_pago' => rand(0, 1) ? 'tarjeta' : 'efectivo',
-                    'estado'      => 'pagada',
+            // Cabecera: OJO nombres en inglés
+            $saleId = DB::table('sales')->insertGetId([
+                'fecha'      => $date,
+                'monto_total'=> 0,   // se recalcula abajo
+                'client_id'  => $clientId,
+                'seller_id'  => $sellerId,
+                'zone_id'    => $zoneId,
+            ]);
+
+            // 1–4 ítems por venta
+            $items = rand(1, 4);
+            $total = 0;
+
+            for ($k = 0; $k < $items; $k++) {
+                $p         = $products[rand(0, $products->count() - 1)];
+                $cantidad  = rand(1, 5);
+                $precio    = (float) $p->precio;
+                $subtotal  = $cantidad * $precio;
+                $total    += $subtotal;
+
+                // Tabla de detalles: ajusta nombres si tu migración usa otros
+                DB::table('sale_details')->insert([
+                    'sale_id'         => $saleId,
+                    'product_id'      => $p->id,
+                    'cantidad'        => $cantidad,       // si tu migración usa 'quantity', cambia aquí
+                    'precio_unitario' => $precio,         // si usa 'unit_price', cambia aquí
+                    'subtotal'        => $subtotal,
                 ]);
+            }
 
-                // 1 a 5 ítems por venta
-                $itemsCount = rand(1, 5);
-                $monto      = 0.0;
-
-                for ($k = 0; $k < $itemsCount; $k++) {
-                    $p = $products->random();
-
-                    // Cantidad razonable según stock disponible
-                    $maxQty = max(1, min(10, (int)$p->stock));
-                    $qty    = rand(1, $maxQty);
-
-                    // Asegúrate de que no decremente el stock a un valor negativo
-                    if ($p->stock > 0) {
-                        $qty = min($qty, $p->stock);  // Ajusta la cantidad si es mayor que el stock disponible
-
-                        $precioUnit = (float)$p->precio;
-                        $sub        = $precioUnit * $qty;
-                        $monto     += $sub;
-
-                        SaleDetail::create([
-                            'sale_id'        => $sale->id,
-                            'product_id'     => $p->id,
-                            'cantidad'       => $qty,
-                            'precio_unitario'=> $precioUnit,
-                            'subtotal'       => $sub,
-                        ]);
-
-                        // Descontar stock solo si hay suficiente
-                        $p->decrement('stock', $qty);  // Esto asegura que el decremento no sea negativo
-                    } else {
-                        Log::warning("Producto con ID {$p->id} no tiene suficiente stock.");
-                    }
-                }
-
-                $sale->update(['monto_total' => $monto]);
-            });
+            DB::table('sales')->where('id', $saleId)->update(['monto_total' => $total]);
         }
     }
 }
