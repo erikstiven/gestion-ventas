@@ -12,20 +12,32 @@ import Pagination from "../components/Pagination";
 import ClientForm from "./clients/ClientForm";
 import { Pencil, Trash2, Plus, Search } from "lucide-react";
 
+// Extiende para poder mostrar dirección (si el store ya la trae)
+export type ClientRow = Client & { direccion?: string | null };
+
 export default function ClientsPage() {
   const { items, page, per_page, total, loading, fetch, remove } = useClients();
+
   const [term, setTerm] = useState("");
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
+  const [editClient, setEditClient] = useState<ClientRow | null>(null); // <- NUEVO
   const [toDelete, setToDelete] = useState<number | null>(null);
 
-  useEffect(() => { fetch(); }, []);
+  useEffect(() => {
+    fetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const applyFilter = () => fetch({ page: 1, search: term.trim() });
+  const clearFilter = () => { setTerm(""); fetch({ page: 1, search: "" }); };
 
   const onDelete = async () => {
     if (toDelete == null) return;
     try {
       await remove(toDelete);
       toast.success("Cliente eliminado correctamente");
+      fetch({ page, search: term.trim() });
     } catch (e: any) {
       toast.error(e?.message ?? "No se pudo eliminar");
     } finally {
@@ -38,7 +50,8 @@ export default function ClientsPage() {
       <Card>
         <CardHeader>
           <h1 className="text-2xl font-semibold">Clientes</h1>
-          <div className="flex gap-2">
+
+          <div className="flex flex-wrap items-center gap-2">
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-zinc-400" />
               <Input
@@ -46,12 +59,26 @@ export default function ClientsPage() {
                 placeholder="Buscar…"
                 value={term}
                 onChange={(e) => setTerm(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") applyFilter();
+                  if (e.key === "Escape") clearFilter();
+                }}
               />
             </div>
-            <Button variant="outline" onClick={() => fetch({ page: 1, search: term })}>
+
+            <Button variant="outline" onClick={applyFilter} disabled={loading}>
               Filtrar
             </Button>
-            <Button onClick={() => { setEditId(null); setOpen(true); }}>
+            <Button variant="outline" onClick={clearFilter} disabled={loading || term === ""}>
+              Limpiar
+            </Button>
+            <Button
+              onClick={() => {
+                setEditId(null);
+                setEditClient(null);
+                setOpen(true);
+              }}
+            >
               <Plus className="mr-2 h-4 w-4" />
               Nuevo
             </Button>
@@ -63,18 +90,31 @@ export default function ClientsPage() {
 
           <Table>
             <THead>
-              <Th>ID</Th><Th>Nombre</Th><Th>Email</Th><Th>Teléfono</Th><Th children={undefined}/>
+              <Th>ID</Th>
+              <Th>Nombre</Th>
+              <Th>Email</Th>
+              <Th>Dirección</Th>
+              <Th>Teléfono</Th>
+              <Th children={undefined}>{/* Acciones */}</Th>
             </THead>
             <TBody>
-              {items.map((c: Client) => (
+              {(items as ClientRow[]).map((c) => (
                 <tr key={c.id} className="border-t">
                   <Td>{c.id}</Td>
                   <Td>{c.nombre}</Td>
                   <Td>{c.email}</Td>
+                  <Td>{c.direccion ?? "—"}</Td>
                   <Td>{c.telefono ?? "—"}</Td>
                   <Td>
                     <div className="flex justify-end gap-2">
-                      <Button variant="outline" onClick={() => { setEditId(c.id); setOpen(true); }}>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setEditId(c.id);
+                          setEditClient(c); // <- pasamos el registro actual
+                          setOpen(true);
+                        }}
+                      >
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button variant="danger" onClick={() => setToDelete(c.id)}>
@@ -91,18 +131,34 @@ export default function ClientsPage() {
             page={page}
             perPage={per_page}
             total={total}
-            onPage={(p) => fetch({ page: p, search: term })}
+            onPage={(p) => fetch({ page: p, search: term.trim() })}
           />
         </CardContent>
       </Card>
 
-      {/* Crear/Editar */}
-      <Modal open={open} onOpenChange={setOpen} title={editId ? "Editar cliente" : "Nuevo cliente"}>
-        <ClientForm openId={editId} onDone={() => setOpen(false)} />
+      {/* Crear / Editar */}
+      <Modal
+        open={open}
+        onOpenChange={setOpen}
+        title={editId ? "Editar cliente" : "Nuevo cliente"}
+      >
+        <ClientForm
+          key={editId ?? 0}           // fuerza reset al alternar
+          openId={editId}
+          initial={editClient ?? undefined}   // <- NUEVO: precarga inmediata
+          onDone={() => {
+            setOpen(false);
+            fetch({ page: 1, search: term.trim() });
+          }}
+        />
       </Modal>
 
       {/* Eliminar */}
-      <Modal open={toDelete != null} onOpenChange={() => setToDelete(null)} title="Eliminar cliente">
+      <Modal
+        open={toDelete != null}
+        onOpenChange={() => setToDelete(null)}
+        title="Eliminar cliente"
+      >
         <p className="text-sm text-zinc-600">Esta acción no se puede deshacer.</p>
         <div className="mt-4 flex justify-end gap-2">
           <Button variant="outline" onClick={() => setToDelete(null)}>Cancelar</Button>
