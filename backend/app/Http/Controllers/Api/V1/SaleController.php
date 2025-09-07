@@ -89,7 +89,7 @@ class SaleController extends Controller
                 Product::where('id', $d['product_id'])->decrement('stock', (int)$d['cantidad']);
             }
 
-            // 👇 Eager load para que no salga cliente/vendedor/zona en null
+            //Eager load para que no salga cliente/vendedor/zona en null
             $sale->load([
                 'client:id,nombre',
                 'seller:id,nombre',
