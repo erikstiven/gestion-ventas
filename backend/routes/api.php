@@ -10,16 +10,13 @@ use App\Http\Controllers\Api\V1\{
     ReportsController
 };
 
-// Agrupación de rutas para la versión v1 de la API
 Route::prefix('v1')->group(function () {
-    // Rutas CRUD para cada recurso usando apiResource
     Route::apiResource('clients', ClientController::class);
     Route::apiResource('zones', ZoneController::class);
     Route::apiResource('sellers', SellerController::class);
     Route::apiResource('products', ProductController::class);
-    Route::apiResource('sales', SaleController::class)->except(['update']); // Excluye la ruta para la actualización de ventas
+    Route::apiResource('sales', SaleController::class)->except(['update']);
 
-    // Rutas para reportes o consultas especiales
     Route::get('reports/ventas-por-zona-por-vendedor', [ReportsController::class, 'ventasPorZonaPorVendedor']);
     Route::get('reports/zonas-sin-ventas',             [ReportsController::class, 'zonasSinVentas']);
     Route::get('reports/vendedores-sin-ventas',        [ReportsController::class, 'vendedoresSinVentas']);
