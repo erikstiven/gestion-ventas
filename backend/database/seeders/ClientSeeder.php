@@ -14,11 +14,9 @@ class ClientSeeder extends Seeder
         $rows = [];
         $nombres = [
             'Comercial Andrade', 'TecnoMax', 'Ferretería La 10', 'Market Sur',
-            'Papelería Iris', 'Distribuidora Mar', 'Agro Loja', 'Muebles Centro',
-            'Textiles Quito', 'Bazar Norte', 'Farmacia Vida', 'Boutique Azul',
-            'Panadería Aroma', 'Cárnicos El Buen Corte', 'Automotriz Sierra',
-            'Gastro Sur', 'Hotel Costa', 'Servicios Andes', 'Clínica Norte', 'Licores Oro'
+            'Papelería Iris', 'Distribuidora Mar', 'Agro Loja', 'Muebles Centro'
         ];
+
         foreach ($nombres as $i => $n) {
             $rows[] = [
                 'nombre' => $n,

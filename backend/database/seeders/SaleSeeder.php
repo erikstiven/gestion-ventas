@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use Illuminate\Support\Carbon;
 
 class SaleSeeder extends Seeder
 {
@@ -16,63 +16,78 @@ class SaleSeeder extends Seeder
         DB::table('sales')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        // Catálogos
-        $zones    = DB::table('zones')->pluck('id', 'nombre_zona');   // nombre => id
-        $sellers  = DB::table('sellers')->pluck('id', 'nombre');      // nombre => id
+        // Obtener catálogos (deben existir previamente)
         $clients  = DB::table('clients')->pluck('id')->toArray();
-        $products = DB::table('products')->get();
+        $sellers  = DB::table('sellers')->pluck('id')->toArray();
+        $zones    = DB::table('zones')->pluck('id')->toArray();
+        $products = DB::table('products')->select('id', 'precio', 'stock')->get()->toArray();
 
-        // Zonas y vendedores que SÍ tendrán ventas (otros quedarán sin ventas)
-        $activeZones = collect(['Zona Norte', 'Zona Sur', 'Zona Centro', 'Zona Este'])
-            ->map(fn ($n) => $zones[$n] ?? null)->filter()->values()->all();
+        if (empty($clients) || empty($sellers) || empty($zones) || empty($products)) {
+            throw new \Exception("Antes de correr SaleSeeder necesitas seedear clients, sellers, zones y products (cada uno con al menos 1 registro).");
+        }
 
-        $activeSellers = collect(['Juan Pérez', 'Carla Rojas', 'Luis Andrade', 'María Torres', 'Pedro Cedeño'])
-            ->map(fn ($n) => $sellers[$n] ?? null)->filter()->values()->all();
+        $methods = ['efectivo', 'tarjeta', 'transferencia', 'depósito'];
+        $states  = ['pagada', 'pendiente', 'anulada'];
 
-        $totalSales = 220;
+        $totalSales = 20; // <-- las 20 ventas que pediste
 
         for ($i = 0; $i < $totalSales; $i++) {
-            // Fecha entre 2020 y 2025
+            // Fecha aleatoria entre 2020-01-01 y 2025-12-28
             $year  = rand(2020, 2025);
             $month = rand(1, 12);
             $day   = rand(1, 28);
             $date  = Carbon::create($year, $month, $day)->toDateString();
 
-            $clientId  = $clients[array_rand($clients)];
-            $zoneId    = $activeZones[array_rand($activeZones)];
-            $sellerId  = $activeSellers[array_rand($activeSellers)];
+            $clientId = $clients[array_rand($clients)];
+            $sellerId = $sellers[array_rand($sellers)];
+            $zoneId   = $zones[array_rand($zones)];
 
-            // Cabecera: OJO nombres en inglés
+            // Insertar cabecera (monto_total inicialmente 0)
             $saleId = DB::table('sales')->insertGetId([
-                'fecha'      => $date,
-                'monto_total'=> 0,   // se recalcula abajo
-                'client_id'  => $clientId,
-                'seller_id'  => $sellerId,
-                'zone_id'    => $zoneId,
+                'fecha'       => $date,
+                'monto_total' => 0,
+                'client_id'   => $clientId,
+                'seller_id'   => $sellerId,
+                'zone_id'     => $zoneId,
+                'metodo_pago' => $methods[array_rand($methods)],
+                'estado'      => $states[array_rand($states)],
+                'created_at'  => Carbon::create($year, $month, $day)->toDateTimeString(),
+                'updated_at'  => Carbon::now()->toDateTimeString(),
             ]);
 
-            // 1–4 ítems por venta
-            $items = rand(1, 4);
+            // 1 a 5 items por venta
+            $items = rand(1, 5);
             $total = 0;
 
             for ($k = 0; $k < $items; $k++) {
-                $p         = $products[rand(0, $products->count() - 1)];
-                $cantidad  = rand(1, 5);
-                $precio    = (float) $p->precio;
-                $subtotal  = $cantidad * $precio;
-                $total    += $subtotal;
+                $p = $products[array_rand($products)];
+                $cantidad = rand(1, 5);
+                $precio   = (float) $p->precio;
+                $subtotal = round($cantidad * $precio, 2);
+                $total += $subtotal;
 
-                // Tabla de detalles: ajusta nombres si tu migración usa otros
                 DB::table('sale_details')->insert([
                     'sale_id'         => $saleId,
                     'product_id'      => $p->id,
-                    'cantidad'        => $cantidad,       // si tu migración usa 'quantity', cambia aquí
-                    'precio_unitario' => $precio,         // si usa 'unit_price', cambia aquí
+                    'cantidad'        => $cantidad,
+                    'precio_unitario' => $precio,
                     'subtotal'        => $subtotal,
+                    'created_at'      => Carbon::now()->toDateTimeString(),
+                    'updated_at'      => Carbon::now()->toDateTimeString(),
                 ]);
+
+                // Decrementar stock hasta un mínimo de 0 (no dejamos negativos)
+                $currentStock = DB::table('products')->where('id', $p->id)->value('stock');
+                $decrement = min($cantidad, max((int)$currentStock, 0));
+                if ($decrement > 0) {
+                    DB::table('products')->where('id', $p->id)->decrement('stock', $decrement);
+                }
             }
 
-            DB::table('sales')->where('id', $saleId)->update(['monto_total' => $total]);
+            // Actualizar monto total de la venta
+            DB::table('sales')->where('id', $saleId)->update([
+                'monto_total' => round($total, 2)
+            ]);
         }
     }
 }

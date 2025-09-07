@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class SellerSeeder extends Seeder
 {
@@ -21,8 +20,6 @@ class SellerSeeder extends Seeder
             ['nombre' => 'Elena Cabrera',   'email' => 'elena.cabrera@example.com',   'telefono' => '0980006666', 'documento' => '0607080910'],
             ['nombre' => 'Sandra Morales',  'email' => 'sandra.morales@example.com',  'telefono' => '0980007777', 'documento' => '0708091011'],
             ['nombre' => 'Diego Almeida',   'email' => 'diego.almeida@example.com',   'telefono' => '0980008888', 'documento' => '0809101112'],
-            ['nombre' => 'Rafael Mena',     'email' => 'rafael.mena@example.com',     'telefono' => '0980009999', 'documento' => '0910111213'],
-            ['nombre' => 'Patricia Salas',  'email' => 'patricia.salas@example.com',  'telefono' => '0980010000', 'documento' => '1011121314'],
         ];
 
         DB::table('sellers')->insert($data);

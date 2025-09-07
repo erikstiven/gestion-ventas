@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\SellerRequest;
 use App\Http\Resources\SellerResource;
 use App\Models\Seller;
 use Illuminate\Http\Request;
@@ -14,13 +13,19 @@ class SellerController extends Controller
 
     public function index(Request $request)
     {
-        [$col,$dir] = $this->sortParams(['id','nombre','email','created_at'],'id');
+        // añadimos 'documento' a los campos permitidos para ordenar
+        [$col, $dir] = $this->sortParams(['id','nombre','email','documento','created_at'], 'id');
+
         $q = Seller::query();
 
         if ($s = trim((string) $request->query('search',''))) {
             $q->where(function ($w) use ($s) {
                 $w->where('nombre', 'like', "%$s%")
-                  ->orWhere('email', 'like', "%$s%");
+                  ->orWhere('email', 'like', "%$s%")
+                  // busca por cédula/documento (ajusta el nombre si tu columna tiene otro)
+                  ->orWhere('documento', 'like', "%$s%")
+                  ->orWhere('document', 'like', "%$s%")
+                  ->orWhere('cedula', 'like', "%$s%");
             });
         }
 
@@ -31,20 +36,8 @@ class SellerController extends Controller
         );
     }
 
-    public function store(SellerRequest $request)
-    {
-        $seller = Seller::create($request->validated());
-        return (new SellerResource($seller))->response()->setStatusCode(201);
-    }
-
     public function show(Seller $seller)
     {
-        return new SellerResource($seller);
-    }
-
-    public function update(SellerRequest $request, Seller $seller)
-    {
-        $seller->update($request->validated());
         return new SellerResource($seller);
     }
 

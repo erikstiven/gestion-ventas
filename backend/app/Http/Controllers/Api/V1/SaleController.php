@@ -15,10 +15,23 @@ class SaleController extends Controller
 
     public function index(Request $request)
     {
-        [$col,$dir] = $this->sortParams(
-            ['id','fecha','monto_total','client_id','seller_id','zone_id'],
-            'fecha'
-        );
+        // columnas permitidas y columna por defecto
+        $allowed = ['id','fecha','monto_total','client_id','seller_id','zone_id'];
+
+        // Obtiene col/dir desde el trait (si vienen en la query)
+        [$col,$dir] = $this->sortParams($allowed, 'fecha');
+
+        // Si el cliente NO envió sort/order válidos, forzamos fecha DESC
+        if (! $request->filled('sort') && ! $request->filled('order')) {
+            $col = 'fecha';
+            $dir = 'desc';
+        }
+
+        // Sanitizar col/dir por seguridad
+        if (! in_array($col, $allowed, true)) {
+            $col = 'fecha';
+        }
+        $dir = strtolower((string) $dir) === 'asc' ? 'asc' : 'desc';
 
         $q = Sale::with(['client','seller','zone','details']);
 
@@ -31,9 +44,13 @@ class SaleController extends Controller
 
         if ($start = $request->query('start_date')) $q->where('fecha','>=',$start);
         if ($end   = $request->query('end_date'))   $q->where('fecha','<=',$end);
-        if ($year  = $request->query('year'))       $q->whereYear('fecha', (int) $year);
+        if ($year  = $request->query('year'))       $q->whereYear('fecha', (int)$year);
 
-        $q->orderBy($col,$dir);
+        // Orden principal y orden secundario para estabilidad
+        $q->orderBy($col, $dir);
+        if ($col === 'fecha') {
+            $q->orderBy('id', 'desc');
+        }
 
         return SaleResource::collection(
             $q->paginate($this->perPage())->appends($request->query())
